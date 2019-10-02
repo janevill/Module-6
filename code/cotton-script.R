@@ -25,12 +25,15 @@ cotton %>%
   
 
 # 3.2. Divide the data_item column ----
+##split the data_item column into two columns, 
 nc_cotton %>%
-  separate(data_item, into = c("cotton_type", "measurement"), sep = " - ") %>%
-  filter(value != "(D)") -> nc_cotton
+  separate(data_item, into = c("cotton_type", "measurement"), sep = " - ") -> nc_cotton
+  
 
 # 3.3. Convert the value column to numeric type ----
-
+##remove "(D)" entries in the value column and convert it to numeric data type
+nc_cotton %>%
+  filter( value != "(D)") -> nc_cotton
 nc_cotton$value <- as.numeric(nc_cotton$value)
 
 # 4. Visualizing trends ----
@@ -47,8 +50,9 @@ ggsave("outputs/cotton_yield_area_harvested.pdf")
 # 5. Summarize data from 2018 ----
 ## What were the top 3 cotton producing counties in NC in terms of total lbs of cotton for 2018?
 nc_cotton %>%
-  filter(year == "2018") %>%
-  spread(key =measurement, value = value)-> nc_cotton2018
+  filter(year == "2018") %>% ##filter on 2018 so there are no duplicate keys
+  spread(key =measurement, value = value)-> nc_cotton2018 ## separate acres harvested and yield into 2 columns
+## calculate yield and rank county production for 2018
 nc_cotton2018 %>%
   mutate(total_lbs=nc_cotton2018$`YIELD, MEASURED IN LB / ACRE`*nc_cotton2018$`ACRES HARVESTED`) %>%
   mutate(rank=min_rank(desc(total_lbs))) %>%
