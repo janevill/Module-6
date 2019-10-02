@@ -47,4 +47,12 @@ ggsave("outputs/cotton_yield_area_harvested.pdf")
 # 5. Summarize data from 2018 ----
 ## What were the top 3 cotton producing counties in NC in terms of total lbs of cotton for 2018?
 nc_cotton %>%
-  spread("measurement", "value")
+  filter(year == "2018") %>%
+  spread(key =measurement, value = value)-> nc_cotton2018
+nc_cotton2018 %>%
+  mutate(total_lbs=nc_cotton2018$`YIELD, MEASURED IN LB / ACRE`*nc_cotton2018$`ACRES HARVESTED`) %>%
+  mutate(rank=min_rank(desc(total_lbs))) %>%
+  arrange(rank) -> nc_cotton2018
+top_3_cotton_counties_2018 <- nc_cotton2018 %>%
+  filter(rank <=3)
+  
